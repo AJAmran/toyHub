@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 
@@ -18,12 +18,21 @@ const client = new MongoClient(uri, {
     strict: true,
     deprecationErrors: true,
   },
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  maxPoolSize: 10, 
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect((err) =>{
+      if(err){
+        console.error(err);
+        return;
+      }
+    })
+    // await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -42,8 +51,15 @@ async function run() {
       res.send(toys);
     });
 
-    //get data by subCategory
 
+    app.get('/singleToys/:id', async(req, res) =>{
+      const toys = await toyCollection.findOne({
+        _id: new ObjectId(req.params.id),
+      });
+      res.send(toys)
+    })
+
+    //get data by subCategory
     app.get("/alltoys/:subCategory", async (req, res) => {
       const { subCategory } = req.params;
       const toys = await toyCollection.find({ subCategory }).toArray();
@@ -56,7 +72,6 @@ async function run() {
       const toys = await toyCollection.find({ sellerEmail }).toArray();
       res.json(toys);
     });
-
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
