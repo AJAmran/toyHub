@@ -41,9 +41,22 @@ async function run() {
       const toys = await toyCollection.find().toArray();
       res.send(toys);
     });
-    
 
-    app.get
+    //get data by subCategory
+
+    app.get("/alltoys/:subCategory", async (req, res) => {
+      const { subCategory } = req.params;
+      const toys = await toyCollection.find({ subCategory }).toArray();
+      res.json(toys);
+    });
+
+    //get data by email
+    app.get("/myToys/:sellerEmail", async (req, res) => {
+      const { sellerEmail } = req.params;
+      const toys = await toyCollection.find({ sellerEmail }).toArray();
+      res.json(toys);
+    });
+
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
