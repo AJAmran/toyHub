@@ -20,18 +20,18 @@ const client = new MongoClient(uri, {
   },
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  maxPoolSize: 10, 
+  maxPoolSize: 10,
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    client.connect((err) =>{
-      if(err){
+    client.connect((err) => {
+      if (err) {
         console.error(err);
         return;
       }
-    })
+    });
     // await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -51,13 +51,21 @@ async function run() {
       res.send(toys);
     });
 
-
-    app.get('/singleToys/:id', async(req, res) =>{
+    app.get("/singleToys/:id", async (req, res) => {
       const toys = await toyCollection.findOne({
         _id: new ObjectId(req.params.id),
       });
-      res.send(toys)
-    })
+      res.send(toys);
+    });
+
+    //search implementation
+    app.get("/search/:text", async (req, res) => {
+      const query = req.params.text;
+      const data = await toyCollection
+        .find({ toyName: { $regex: query, $options: "i" } })
+        .toArray();
+        res.json(data);
+    });
 
     //get data by subCategory
     app.get("/alltoys/:subCategory", async (req, res) => {
@@ -66,11 +74,11 @@ async function run() {
       res.json(toys);
     });
 
-    // get 20 data 
-    app.get('/twentyToys', async(req, res) =>{
+    // get 20 data
+    app.get("/twentyToys", async (req, res) => {
       const data = await toyCollection.find().limit(20).toArray();
-      res.send(data)
-    })
+      res.send(data);
+    });
 
     //get data by email
     app.get("/myToys/:sellerEmail", async (req, res) => {
