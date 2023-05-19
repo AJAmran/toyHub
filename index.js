@@ -66,6 +66,12 @@ async function run() {
       res.json(toys);
     });
 
+    // get 20 data 
+    app.get('/twentyToys', async(req, res) =>{
+      const data = await toyCollection.find().limit(20).toArray();
+      res.send(data)
+    })
+
     //get data by email
     app.get("/myToys/:sellerEmail", async (req, res) => {
       const { sellerEmail } = req.params;
